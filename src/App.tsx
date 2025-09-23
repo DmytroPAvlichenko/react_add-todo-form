@@ -37,8 +37,8 @@ export const App = () => {
   return (
     <div className="App">
       <h1>Add todo form</h1>
-      <TodoInfo onSubmit={addTodo} userList={userItitial} />
-      <TodoList list={todoList} />
+      <TodoInfo onSubmit={addTodo} todo={userItitial} />
+      <TodoList todos={todoList} />
     </div>
   );
 };

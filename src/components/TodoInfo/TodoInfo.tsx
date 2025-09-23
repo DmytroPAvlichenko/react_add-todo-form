@@ -1,14 +1,15 @@
 import React, { FormEvent, useState } from 'react';
-import { User } from '../../Types/Users';
+
 import { Todos } from '../../Types/Todos';
 import { getUserById } from '../../servise/Userservice';
+import { User } from '../../Types/Users';
 
 interface Props {
-  userList: User[];
+  todo: User[];
   onSubmit: (todo: Todos) => void;
 }
 
-export const TodoInfo: React.FC<Props> = ({ userList, onSubmit }) => {
+export const TodoInfo: React.FC<Props> = ({ todo, onSubmit }) => {
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
 
@@ -58,6 +59,7 @@ export const TodoInfo: React.FC<Props> = ({ userList, onSubmit }) => {
           value={title}
           type="text"
           data-cy="titleInput"
+          placeholder="Please enter a title"
           onChange={handleTitleChange}
         />
         {titleError && <span className="error">Please enter a title</span>}
@@ -68,8 +70,7 @@ export const TodoInfo: React.FC<Props> = ({ userList, onSubmit }) => {
           <option value="0" disabled>
             Choose a user
           </option>
-
-          {userList.map(user => (
+          {todo.map(user => (
             <option key={user.id} value={user.id}>
               {user.name}
             </option>
