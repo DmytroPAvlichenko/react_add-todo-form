@@ -1,82 +1,21 @@
-import React, { FormEvent, useState } from 'react';
-import { User } from '../../Types/Users';
+import { Todos } from '../../Types/Todos';
+import { UserInfo } from '../UserInfo';
+import classNames from 'classnames';
 
 interface Props {
-  users: User[];
-  onSubmit: (title: string, userId: number) => void;
+  todo: Todos;
 }
 
-export const TodoInfo: React.FC<Props> = ({ users, onSubmit }) => {
-  const [title, setTitle] = useState('');
-  const [titleError, setTitleError] = useState(false);
+export const TodoInfo: React.FC<Props> = ({ todo }) => (
+  <article
+    key={todo.id}
+    data-id={todo.id}
+    className={classNames('TodoInfo', {
+      'TodoInfo--completed': todo.completed,
+    })}
+  >
+    <h2 className="TodoInfo__title">{todo.title}</h2>
 
-  const [userId, setUserId] = useState(0);
-  const [userIdError, setUserIdError] = useState(false);
-
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-    setTitleError(false);
-  };
-
-  const handleUserIdChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setUserId(+event.target.value);
-    setUserIdError(false);
-  };
-
-  const formReset = () => {
-    setTitle('');
-    setUserId(0);
-  };
-
-  const getFormCheck = (event: FormEvent) => {
-    event.preventDefault();
-
-    setTitleError(!title);
-    setUserIdError(!userId);
-
-    if (!title || !userId) {
-      return;
-    }
-
-    onSubmit(title, userId);
-
-    formReset();
-  };
-
-  return (
-    <form onSubmit={getFormCheck}>
-      <div className="field">
-        <input
-          value={title}
-          type="text"
-          data-cy="titleInput"
-          placeholder="Please enter a title"
-          onChange={handleTitleChange}
-        />
-        {titleError && <span className="error">Please enter a title</span>}
-      </div>
-
-      <div className="field">
-        <select
-          data-cy="userSelect"
-          value={userId}
-          onChange={handleUserIdChange}
-        >
-          <option value="0" disabled>
-            Choose a user
-          </option>
-          {users.map(user => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
-        {userIdError && <span className="error">Please choose a user</span>}
-      </div>
-
-      <button type="submit" data-cy="submitButton">
-        Add
-      </button>
-    </form>
-  );
-};
+    {todo.user && <UserInfo user={todo.user} />}
+  </article>
+);

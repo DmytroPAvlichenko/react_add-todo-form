@@ -5,5 +5,5 @@ export interface Todos {
   title: string;
   completed: boolean;
   userId: number;
-  user?: User | undefined;
+  user: User | null;
 }

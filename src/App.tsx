@@ -3,14 +3,14 @@ import './App.scss';
 import todosFromServer from './api/todos';
 import usersFromServer from './api/users';
 import { TodoList } from './components/TodoList';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Todos } from './Types/Todos';
-import { TodoInfo } from './components/TodoInfo';
 import { getUserById } from './servise/Userservice';
 
+//#region function
 export const initialTodos: Todos[] = todosFromServer.map(todos => ({
   ...todos,
-  user: getUserById(todos.userId) || undefined,
+  user: getUserById(todos.userId) || null,
 }));
 
 function getNewTodoId(todo: Todos[]) {
@@ -18,32 +18,94 @@ function getNewTodoId(todo: Todos[]) {
 
   return maxId + 1;
 }
+//#endregion
 
 export const App = () => {
   const [todoList, setTodo] = useState<Todos[]>(initialTodos);
 
-  const addTodo = (title: string, userId: number) => {
-    const user = getUserById(userId);
+  const [title, setTitle] = useState('');
+  const [titleError, setTitleError] = useState(false);
 
-    if (!user) {
+  const [userId, setUserId] = useState(0);
+  const [userIdError, setUserIdError] = useState(false);
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+    setTitleError(false);
+  };
+
+  const handleUserIdChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setUserId(+event.target.value);
+    setUserIdError(false);
+  };
+
+  const formReset = () => {
+    setTitle('');
+    setUserId(0);
+  };
+
+  const addTodo = (todo: Todos) => {
+    setTodo(currentTodo => [...currentTodo, todo]);
+  };
+
+  const getFormCheck = (event: FormEvent) => {
+    event.preventDefault();
+
+    setTitleError(!title);
+    setUserIdError(!userId);
+
+    if (!title || !userId) {
       return;
     }
 
-    const newTodo: Todos = {
+    addTodo({
       id: getNewTodoId(todoList),
       title,
       userId,
       completed: false,
-      user,
-    };
+      user: getUserById(userId),
+    });
 
-    setTodo(currentTodo => [...currentTodo, newTodo]);
+    formReset();
   };
 
   return (
     <div className="App">
       <h1>Add todo form</h1>
-      <TodoInfo onSubmit={addTodo} users={usersFromServer} />
+      <form onSubmit={getFormCheck}>
+        <div className="field">
+          <input
+            value={title}
+            type="text"
+            data-cy="titleInput"
+            placeholder="Please enter a title"
+            onChange={handleTitleChange}
+          />
+          {titleError && <span className="error">Please enter a title</span>}
+        </div>
+
+        <div className="field">
+          <select
+            data-cy="userSelect"
+            value={userId}
+            onChange={handleUserIdChange}
+          >
+            <option value="0" disabled>
+              Choose a user
+            </option>
+            {usersFromServer.map(user => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+          {userIdError && <span className="error">Please choose a user</span>}
+        </div>
+
+        <button type="submit" data-cy="submitButton">
+          Add
+        </button>
+      </form>
       <TodoList todos={todoList} />
     </div>
   );
