@@ -1,15 +1,12 @@
 import React, { FormEvent, useState } from 'react';
-
-import { Todos } from '../../Types/Todos';
-import { getUserById } from '../../servise/Userservice';
 import { User } from '../../Types/Users';
 
 interface Props {
-  todo: User[];
-  onSubmit: (todo: Todos) => void;
+  users: User[];
+  onSubmit: (title: string, userId: number) => void;
 }
 
-export const TodoInfo: React.FC<Props> = ({ todo, onSubmit }) => {
+export const TodoInfo: React.FC<Props> = ({ users, onSubmit }) => {
   const [title, setTitle] = useState('');
   const [titleError, setTitleError] = useState(false);
 
@@ -21,7 +18,7 @@ export const TodoInfo: React.FC<Props> = ({ todo, onSubmit }) => {
     setTitleError(false);
   };
 
-  const handUserIdChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleUserIdChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setUserId(+event.target.value);
     setUserIdError(false);
   };
@@ -41,19 +38,13 @@ export const TodoInfo: React.FC<Props> = ({ todo, onSubmit }) => {
       return;
     }
 
-    onSubmit({
-      id: 0,
-      title,
-      completed: false,
-      userId,
-      user: getUserById(userId) || undefined,
-    });
+    onSubmit(title, userId);
 
     formReset();
   };
 
   return (
-    <form action="/api/todos" method="POST" onSubmit={getFormCheck}>
+    <form onSubmit={getFormCheck}>
       <div className="field">
         <input
           value={title}
@@ -66,11 +57,15 @@ export const TodoInfo: React.FC<Props> = ({ todo, onSubmit }) => {
       </div>
 
       <div className="field">
-        <select data-cy="userSelect" value={userId} onChange={handUserIdChange}>
+        <select
+          data-cy="userSelect"
+          value={userId}
+          onChange={handleUserIdChange}
+        >
           <option value="0" disabled>
             Choose a user
           </option>
-          {todo.map(user => (
+          {users.map(user => (
             <option key={user.id} value={user.id}>
               {user.name}
             </option>
